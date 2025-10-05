@@ -68,20 +68,20 @@ KSign = function(x,k,naive = FALSE){
   }
 }
 
-#### component Kdepth ####
+#### component Ldepth ####
 
-#' Component \code{K}-depths for multivariate data
+#' Component \code{L}-depths for multivariate data
 #'
 #' C++ implementations of the algorithm for
 #' the computation of (both simplified and full) component
-#' \code{K}-depth for multi-dimensional data (residuals).
+#' \code{L}-depth for multi-dimensional data (residuals).
 #' The complexity of the algorithms is O(n).
 
 #' @param X The bivariate (or multivariate) dataset represented
 #' as a numerical matrix with \code{p} columns and \code{n} rows.
 #' The rows of \code{X} are typically the residuals.
 #'
-#' @param K Positive integer, parameter of the depth.
+#' @param L Positive integer, parameter of the depth.
 #'
 #' @param type Type of the depth to compute. Can take values \code{simplified}
 #' or \code{full}. By default, \code{simplified} is computed.
@@ -95,17 +95,18 @@ KSign = function(x,k,naive = FALSE){
 #' n = 500
 #' p = 3
 #' X = matrix(rnorm(p*n),ncol=p)
-#' K = 2
+#' L = 2
 #'
-#' componentKDepth(X,K,"simplified")*(n-K)
+#' componentLDepth(X,L,"simplified")*(n-L)
 #' # the same evaluated component-wise
-#' for(j in 1:p) print(componentKDepth(X[,j],K,"simplified")*(n-K))
+#' for(j in 1:p) print(componentLDepth(X[,j],L,"simplified")*(n-L))
 #'
-#' componentKDepth(X,K,"full")*choose(n,K+1)
+#' componentLDepth(X,L,"full")*choose(n,L+1)
 #' # the same evaluated component-wise
-#' for(j in 1:p) print(componentKDepth(X[,j],K,"full")*choose(n,K+1))
+#' for(j in 1:p) print(componentLDepth(X[,j],L,"full")*choose(n,L+1))
 
-componentKDepth = function(X, K=1, type=c("simplified", "full")){
+componentLDepth = function(X, L=1, type=c("simplified", "full")){
+  K = L
   type = match.arg(type)
   if(is.vector(X)) X = matrix(X,ncol=1)
   p = ncol(X)
@@ -114,23 +115,23 @@ componentKDepth = function(X, K=1, type=c("simplified", "full")){
   if(type=="simplified"){
     res = Inf
     for(j in 1:p){
-      res = min(res,compKdepth(X[,j],K))
+      res = min(res,compKdepth(X[,j],L))
     }
-  return(res/(n-K))
+  return(res/(n-L))
   }
   if(type=="full"){
     res = Inf
-    for(j in 1:p) res = min(res,sum(KSign(X[,j],K+1)[K+1,]))
-  return(res/choose(n,K+1))
+    for(j in 1:p) res = min(res,sum(KSign(X[,j],L+1)[L+1,]))
+  return(res/choose(n,L+1))
   }
 }
 
-#### simplKSimplex ####
+#### simplLSimplex ####
 
-#' Simplified \code{K}-simplex depth for bivariate data
+#' Simplified \code{L}-simplex depth for bivariate data
 #'
 #' C++ and R implementations of the algorithm for
-#' the computation of the simplified \code{K}-simplex depth for
+#' the computation of the simplified \code{L}-simplex depth for
 #' two-dimensional data (residuals). The C++ implementation
 #' is the fastest one that should be used in practice; the complexity
 #' of both algorithms is O(n). For comparison,
@@ -140,8 +141,8 @@ componentKDepth = function(X, K=1, type=c("simplified", "full")){
 #' with two columns and \code{n} rows. The rows of \code{X} are
 #' typically the residuals.
 #'
-#' @param K Positive integer 1 or 2, parameter of the depth. If
-#' \code{K} is 1, only the simplified 1-simplex depth is computed. If \code{K}
+#' @param L Positive integer 1 or 2, parameter of the depth. If
+#' \code{L} is 1, only the simplified 1-simplex depth is computed. If \code{L}
 #' is 2, both simplified 1-simplex depth and simplified 2-simplex depth are
 #' computed.
 #'
@@ -158,26 +159,27 @@ componentKDepth = function(X, K=1, type=c("simplified", "full")){
 #' should be given. By default set to \code{FALSE}.
 #'
 #' @return A vector of length \code{2}. In the first element we have
-#' the relative number of consecutive triangles (\code{K=1}) formed from
+#' the relative number of consecutive triangles (\code{L=1}) formed from
 #' the rows of  \code{X} that contain the origin, and in the second
 #' element we have the relative number of consecutive pairs of triangles
-#' (\code{K=2}) that both contain the origin. Both numbers lie between
+#' (\code{L=2}) that both contain the origin. Both numbers lie between
 #' 0 and 1.
 #'
-#' @seealso \link{fullKSimplex} for a C++ implementation of the full
-#' version of the 2-simplex depth, and \link{KSimplex} for a wrapper
+#' @seealso \link{fullLSimplex} for a C++ implementation of the full
+#' version of the 2-simplex depth, and \link{LSimplex} for a wrapper
 #' function that can call both the full version of the depth
-#' (\link{fullKSimplex}), and the simplified version of the depth
-#' (\link{simplKSimplex}).
+#' (\link{fullLSimplex}), and the simplified version of the depth
+#' (\link{simplLSimplex}).
 #'
 #' @examples
 #' n = 500
 #' X = matrix(rnorm(2*n),ncol=2)
-#' K = 2
-#' simplKSimplex(X,K)
+#' L = 2
+#' simplLSimplex(X,L)
 
-simplKSimplex = function(X,K=2,method=c("Cpp","naive0","naive1"),
+simplLSimplex = function(X,L=2,method=c("Cpp","naive0","naive1"),
                     echo=FALSE){
+  K = L
   method = match.arg(method)
   if(method=="naive0"){
     n = nrow(X)
@@ -222,7 +224,7 @@ simplKSimplex = function(X,K=2,method=c("Cpp","naive0","naive1"),
   }
 }
 
-#### fullKSimplex ####
+#### fullLSimplex ####
 
 #' Full-\code{1}-simplex and full-\code{2}-simplex depth for bivariate data
 #'
@@ -249,21 +251,21 @@ simplKSimplex = function(X,K=2,method=c("Cpp","naive0","naive1"),
 #' relative number of non-consecutive pairs of triangles that share two
 #' vertices and both contain the origin.
 #'
-#' @seealso \link{simplKSimplex} for an implementation of the simplified
+#' @seealso \link{simplLSimplex} for an implementation of the simplified
 #' version of the 1-simplex and 2-simplex depth.
 #'
 #' @examples
 #' n = 100
 #' X = matrix(rnorm(2*n),ncol=2)
-#' fullKSimplex(X)
-#' fullKSimplex(X, naive=TRUE)
-#' fullKSimplex(X, naive=FALSE)
+#' fullLSimplex(X)
+#' fullLSimplex(X, naive=TRUE)
+#' fullLSimplex(X, naive=FALSE)
 #'
 #' n = 20
 #' X = matrix(rnorm(2*n),ncol=2)
-#' fullKSimplex(X)
+#' fullLSimplex(X)
 
-fullKSimplex = function(X, naive = NULL){
+fullLSimplex = function(X, naive = NULL){
   n = nrow(X)
   XR = X[,2] / X[,1]
   if(any(is.nan(XR))) warning("Some elements of X are numerically equal to 0,
@@ -291,21 +293,21 @@ fullKSimplex = function(X, naive = NULL){
   return(res)
 }
 
-#### KSimplex ####
+#### LSimplex ####
 
-#' Simplified and full \code{K}-simplex depth for bivariate data
+#' Simplified and full \code{L}-simplex depth for bivariate data
 #'
 #' Wrapper function for the fastest C++ implementations of the algorithms for
-#' the computation of the simplified \code{K}-simplex depths, and the
+#' the computation of the simplified \code{L}-simplex depths, and the
 #' full \code{2}-simplex depth for two-dimensional data (residuals).
 #'
 #' @param X The bivariate dataset represented as a numerical matrix
 #' with two columns and \code{n} rows. The rows of \code{X} are
 #' typically the residuals.
 #'
-#' @param K Positive integer 1 or 2, parameter of the depth. If
-#' \code{K} is 1, only the (simplified or full) 1-simplex depth is computed.
-#' If \code{K} is 2, both (simplified or full) 1-simplex depth and (simplified
+#' @param L Positive integer 1 or 2, parameter of the depth. If
+#' \code{L} is 1, only the (simplified or full) 1-simplex depth is computed.
+#' If \code{L} is 2, both (simplified or full) 1-simplex depth and (simplified
 #' or full) 2-simplex depth are computed.
 #'
 #' @param type Type of the depth to compute. Can take values \code{simplified}
@@ -314,23 +316,24 @@ fullKSimplex = function(X, naive = NULL){
 #' @return A vector of length \code{2}, both elements are numeric values
 #' between 0 and 1. First element is the (simplified or full)
 #' \code{1}-simplex depth. The second element it the (simplified or full)
-#' \code{2}-simplex depth. If \code{K=1}, the second element of the vector is
+#' \code{2}-simplex depth. If \code{L=1}, the second element of the vector is
 #' set to be zero.
 #'
-#' @seealso \link{simplKSimplex} and \link{fullKSimplex} for an implementation
+#' @seealso \link{simplLSimplex} and \link{fullLSimplex} for an implementation
 #' of the simplified and full versions of the 1-simplex and 2-simplex depth,
 #' respectively.
 #'
 #' @examples
 #' n = 100
 #' X = matrix(rnorm(2*n),ncol=2)
-#' KSimplex(X, type="simpl")
-#' KSimplex(X, type="full")
+#' LSimplex(X, type="simpl")
+#' LSimplex(X, type="full")
 
-KSimplex = function(X, K=2, type=c("simplified", "full")){
+LSimplex = function(X, L=2, type=c("simplified", "full")){
+  K = L
   type = match.arg(type)
-  if(type=="simplified") return(simplKSimplex(X,K))
-  if(type=="full") if(K==2) return(fullKSimplex(X)) else {
+  if(type=="simplified") return(simplLSimplex(X,K))
+  if(type=="full") if(K==2) return(fullLSimplex(X)) else {
     x = X[order((X[,2]) / (X[,1])),1]
     res = sum(KSign(sign(x), 3)[3,])/choose(length(x),3)
     return(res)
@@ -338,10 +341,10 @@ KSimplex = function(X, K=2, type=c("simplified", "full")){
   }
 }
 
-#### KSimplex_MC ####
+#### LSimplex_MC ####
 
 #' A Monte Carlo approximation of the null distribution of
-#' \code{K}-simplex depths for bivariate data
+#' \code{L}-simplex depths for bivariate data
 #'
 #' C++ implementation of a Monte Carlo approximation of the distribution
 #' of the simplified \code{1}-simplex depth, simplified \code{2}-simplex depth,
@@ -354,26 +357,26 @@ KSimplex = function(X, K=2, type=c("simplified", "full")){
 #' By default is set to 100000.
 #'
 #' @param full Logical variable that says whether also the
-#' full \code{K}-simplex depths should be considered. The procedure is
-#' much faster without the full \code{K}-simplex depths.
+#' full \code{L}-simplex depths should be considered. The procedure is
+#' much faster without the full \code{L}-simplex depths.
 #'
 #' @return A large matrix of dimensions \code{B}-times-\code{j}, where
-#' \code{j} is 2 if only the simplified \code{K}-simplex depths are considered
-#' (\code{full=FALSE}), 4 if also the full \code{K}-simplex depths are
+#' \code{j} is 2 if only the simplified \code{L}-simplex depths are considered
+#' (\code{full=FALSE}), 4 if also the full \code{L}-simplex depths are
 #' considered (\code{full=TRUE}): first column for the simplified
 #' \code{1}-simplex depth,
 #' second column for the simplified \code{2}-simplex depth, third column to the
 #' full \code{1}-simplex depth (that is, the usual 2-dimensional simplicial
 #' depth of the origin), and fourth column for the full \code{2}-simplex depth.
 #'
-#' @seealso \link{KSimplex}, \link{simplKSimplex}, and \link{fullKSimplex} for
+#' @seealso \link{LSimplex}, \link{simplLSimplex}, and \link{fullLSimplex} for
 #' the implementations of the functions used to generate the Monte Carlo
 #' approximation.
 #'
 #' @examples
 #' n = 100
 #' B = 50
-#' (KMC = KSimplex_MC(n,B))
+#' (LMC = LSimplex_MC(n,B))
 #'
 #' # standardizing the columns to (approximately) pivotal quantities
 #'
@@ -383,9 +386,9 @@ KSimplex = function(X, K=2, type=c("simplified", "full")){
 #'         1/n,
 #'         1/n)
 #'
-#' (KMC_stand = t((t(KMC)-mns)/sds)) # standardized kMC
+#' (LMC_stand = t((t(LMC)-mns)/sds)) # standardized kMC
 
-KSimplex_MC = function(n,B=1e5,full=TRUE,naive=NULL){
+LSimplex_MC = function(n,B=1e5,full=TRUE,naive=NULL){
   rnks = replicate(B,sample(n,n))
   rnks = lapply(seq_len(ncol(rnks)), function(i) rnks[,i])
   sgns = matrix((rbinom(n*B,1,prob=1/2)-1/2)*2,nrow=n)
