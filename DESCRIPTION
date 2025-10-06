@@ -1,6 +1,6 @@
-Package: KDepth
+Package: SignDepth
 Type: Package
-Title: K-depths for one-dimensional and bivariate data
+Title: Sign depths for one-dimensional and bivariate data
 Version: 0.1.7
 Author: Stanislav Nagy
 Maintainer: Stanislav Nagy <nagy@karlin.mff.cuni.cz>
